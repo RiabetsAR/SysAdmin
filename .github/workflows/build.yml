@@ -10,7 +10,6 @@ on:
 jobs:
   build-debian:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -36,16 +35,18 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install RPM build tools
         run: |
-          dnf install -y rpm-build tar
+          dnf install -y rpm-build tar dos2unix
 
       - name: Build RPM package
         run: |
           mkdir -p ~/rpmbuild/{SOURCES,SPECS}
           mkdir -p dist-rpm
+          dos2unix rpm/etc-files.spec
           cp rpm/etc-files.spec ~/rpmbuild/SPECS/
           cp rpm/etc-files-1.0.tar.gz ~/rpmbuild/SOURCES/
           rpmbuild -ba ~/rpmbuild/SPECS/etc-files.spec
