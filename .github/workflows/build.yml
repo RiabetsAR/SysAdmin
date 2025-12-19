@@ -1,0 +1,58 @@
+name: Build Packages
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-debian:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install DEB build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debhelper build-essential devscripts
+
+      - name: Build DEB package
+        run: |
+          chmod +x debian/rules
+          dpkg-buildpackage -us -uc
+          mkdir dist-deb
+          mv ../*.deb dist-deb/
+
+      - name: Upload DEB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package
+          path: dist-deb/
+
+  build-rpm:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install RPM build tools
+        run: |
+          dnf install -y rpm-build tar
+
+      - name: Build RPM package
+        run: |
+          mkdir -p ~/rpmbuild/{SOURCES,SPECS}
+          mkdir -p dist-rpm
+          cp rpm/etc-files.spec ~/rpmbuild/SPECS/
+          cp rpm/etc-files-1.0.tar.gz ~/rpmbuild/SOURCES/
+          rpmbuild -ba ~/rpmbuild/SPECS/etc-files.spec
+          cp ~/rpmbuild/RPMS/noarch/*.rpm dist-rpm/
+
+      - name: Upload RPM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-package
+          path: dist-rpm/
