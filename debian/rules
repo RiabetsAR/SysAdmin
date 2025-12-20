@@ -2,3 +2,8 @@
 
 %:
 	dh $@
+
+override_dh_install:
+	mkdir -p debian/etc-files/usr/bin
+	cp script.sh debian/etc-files/usr/bin/etc-files
+	chmod +x debian/etc-files/usr/bin/etc-files
