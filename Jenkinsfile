@@ -24,8 +24,8 @@ pipeline {
 		stage('Test DEB in Docker') {
             steps {
                 sh '''
-                docker run --rm -v $(pwd):/apps ubuntu:22.04 bash -c "
-                dpkg -i /apps/*.deb || apt-get install -fy /apps/*.deb
+                /usr/bin/docker run --rm -v $(pwd):/apps ubuntu:22.04 bash -c "
+                dpkg -i /apps/*.deb || apt-get update && apt-get install -fy /apps/*.deb
                 script.sh
                 "
                 '''
@@ -35,7 +35,7 @@ pipeline {
         stage('Test RPM in Docker') {
             steps {
                 sh '''
-                docker run --rm -v $(pwd)/rpmbuild/RPMS/noarch:/apps fedora:latest bash -c "
+                /usr/bin/docker run --rm -v $(pwd)/rpmbuild/RPMS/noarch:/apps fedora:latest bash -c "
                 dnf install -y /apps/*.rpm
                 etc-files
                 "
