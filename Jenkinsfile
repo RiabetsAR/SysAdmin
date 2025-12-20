@@ -25,7 +25,7 @@ pipeline {
                 sh '''
                 docker run --rm -v $(pwd)/artifacts:/apps ubuntu:22.04 bash -c "
                 apt-get update && 
-                apt-get install -y /apps/etc-files_1.0-1_amd64.deb
+                dpkg -i /apps/etc-files_1.0-1_amd64.deb || apt-get install -fy
                 /usr/bin/etc-files
                 "
                 '''
