@@ -20,24 +20,36 @@ pipeline {
                 sh 'ls -l artifacts/'
             }
         }
-        stage('Test DEB in Docker') {
+stage('Test DEB in Docker') {
             steps {
                 sh '''
-                docker run --rm -v $(pwd)/artifacts:/apps ubuntu:22.04 bash -c "
-                apt-get update && 
-                dpkg -i /apps/etc-files_1.0-1_amd64.deb || apt-get install -fy
-                /usr/bin/etc-files
+                CONTAINER_ID=$(docker run -d ubuntu:22.04 sleep infinity)
+                
+                docker cp artifacts/etc-files_1.0-1_amd64.deb $CONTAINER_ID:/tmp/package.deb
+                
+                docker exec $CONTAINER_ID bash -c "
+                    apt-get update && 
+                    apt-get install -y /tmp/package.deb && 
+                    /usr/bin/etc-files
                 "
+                
+                docker rm -f $CONTAINER_ID
                 '''
             }
         }
         stage('Test RPM in Docker') {
             steps {
                 sh '''
-                docker run --rm -v $(pwd)/artifacts:/apps fedora:latest bash -c "
-                dnf install -y /apps/etc-files-1.0-1.noarch.rpm
-                /usr/bin/etc-files
+                CONTAINER_ID=$(docker run -d fedora:latest sleep infinity)
+                
+                docker cp artifacts/etc-files-1.0-1.noarch.rpm $CONTAINER_ID:/tmp/package.rpm
+                
+                docker exec $CONTAINER_ID bash -c "
+                    dnf install -y /tmp/package.rpm && 
+                    /usr/bin/etc-files
                 "
+                
+                docker rm -f $CONTAINER_ID
                 '''
             }
         }
