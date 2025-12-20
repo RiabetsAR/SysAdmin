@@ -14,10 +14,10 @@ pipeline {
                 sh 'dpkg-buildpackage -us -uc'
                 
                 sh 'dos2unix rpm/etc-files.spec'
-                sh 'mkdir -p ~/rpmbuild/{SOURCES,SPECS}'
-                sh 'cp rpm/etc-files.spec ~/rpmbuild/SPECS/'
-                sh 'cp rpm/etc-files-1.0.tar.gz ~/rpmbuild/SOURCES/'
-                sh 'rpmbuild -ba ~/rpmbuild/SPECS/etc-files.spec'
+				sh 'mkdir -p rpmbuild/SOURCES rpmbuild/SPECS'
+                sh 'cp rpm/etc-files.spec rpmbuild/SPECS/'
+                sh 'cp rpm/etc-files-1.0.tar.gz rpmbuild/SOURCES/'
+				sh 'rpmbuild --define "_topdir $(pwd)/rpmbuild" -ba rpmbuild/SPECS/etc-files.spec'
             }
         }
 
@@ -33,10 +33,10 @@ pipeline {
             }
         }
 
-        stage('Test RPM in Docker') {
+		stage('Test RPM in Docker') {
             steps {
                 sh '''
-                docker run --rm -v /home/jenkins/rpmbuild/RPMS/noarch:/apps fedora:latest bash -c "
+                docker run --rm -v $(pwd)/rpmbuild/RPMS/noarch:/apps fedora:latest bash -c "
                 dnf install -y /apps/*.rpm && 
                 etc-files
                 "
