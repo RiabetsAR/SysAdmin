@@ -24,7 +24,7 @@ pipeline {
                 sh '''
                 ID=$(docker run -d ubuntu:22.04 sleep infinity)
                 docker cp artifacts/etc-files_1.0-1_amd64.deb $ID:/tmp/package.deb
-                docker exec $ID bash -c "apt-get update && apt-get install -y /tmp/package.deb && /usr/bin/script.sh"
+                docker exec $ID bash -c "apt-get update && apt-get install -y /tmp/package.deb && /usr/bin/etc-files"
                 docker rm -f $ID
                 '''
             }
@@ -34,7 +34,7 @@ pipeline {
                 sh '''
                 ID=$(docker run -d fedora:latest sleep infinity)
                 docker cp artifacts/etc-files-1.0-1.noarch.rpm $ID:/tmp/package.rpm
-                docker exec $ID bash -c "dnf install -y /tmp/package.rpm && /usr/bin/script.sh"
+                docker exec $ID bash -c "dnf install -y /tmp/package.rpm && /usr/bin/etc-files"
                 docker rm -f $ID
                 '''
             }
