@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-		checkout scm
+				checkout scm
             }
         }
 
@@ -24,9 +24,10 @@ pipeline {
 		stage('Test DEB in Docker') {
             steps {
                 sh '''
-                /usr/bin/docker run --rm -v $(pwd):/apps ubuntu:22.04 bash -c "
-                dpkg -i /apps/*.deb || apt-get update && apt-get install -fy /apps/*.deb
-                script.sh
+                docker run --rm -v $(pwd):/apps ubuntu:22.04 bash -c "
+                apt-get update && 
+                apt-get install -y /apps/*.deb || (apt-get install -fy /apps/*.deb)
+                /usr/bin/etc-files || script.sh
                 "
                 '''
             }
@@ -35,7 +36,7 @@ pipeline {
         stage('Test RPM in Docker') {
             steps {
                 sh '''
-                /usr/bin/docker run --rm -v $(pwd)/rpmbuild/RPMS/noarch:/apps fedora:latest bash -c "
+                docker run --rm -v $(pwd)/rpmbuild/RPMS/noarch:/apps fedora:latest bash -c "
                 dnf install -y /apps/*.rpm
                 etc-files
                 "
